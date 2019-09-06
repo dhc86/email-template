@@ -1,0 +1,8 @@
+<div ui-tinymce="$ctrl.ngjs.tinymceOptions" ng-model="$ctrl.options.text"></div>
+<div class="image">
+  <img
+    upload-image
+    ng-style="$ctrl.getImageStyles()"
+    ng-src="{{ $ctrl.options.image }}"
+  />
+</div>

@@ -1,0 +1,18 @@
+:local(.scoped) {
+  display: block;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 10px;
+
+  .column {
+    img {
+      max-width: 100%;
+      display: block;
+      margin: 0 auto;
+    }
+    [ui-tinymce] {
+      width: 100%;
+      margin-top: 10px;
+    }
+  }
+}

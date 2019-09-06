@@ -1,0 +1,9 @@
+<!-- <div ng-if="$ctrl.options.logo.length" class="logo">
+  <img ng-src="{{ $ctrl.options.logo }}" />
+</div> -->
+
+<ul>
+  <li ng-repeat="item in $ctrl.options.items">
+    <a href="{{ item.href }}">{{ item.title }}</a>
+  </li>
+</ul>

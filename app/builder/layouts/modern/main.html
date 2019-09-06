@@ -1,0 +1,1060 @@
+<div class="email-builder-content">
+  <div class="md-card">
+    <div class="md-card-content elements-list">
+      <ul dragula='"element"'>
+        <li
+          ng-repeat="element in $ctrl.elements"
+          data-type="{{ element.type }}"
+        >
+          <i class="material-icons" ng-bind-html="element.icon"></i>
+          <span ng-bind="element.primary_head | translate"></span>
+        </li>
+      </ul>
+      <button
+        class="md-btn md-btn-custom btn-save"
+        ng-class="{disabled: !$ctrl.hasChanges()}"
+        ng-click="$ctrl.saveEmailTemplate()"
+      >
+        <i class="material-icons">save</i>
+        {{ 'save_changes' | translate }}
+      </button>
+      <button
+        class="md-btn md-btn-custom"
+        ng-class="{disabled: $ctrl.editGeneralSettings}"
+        ng-click="$ctrl.editElement('general')"
+      >
+        <i class="material-icons">settings</i>
+        {{ 'general_settings' | translate }}
+      </button>
+      <button
+        class="md-btn md-btn-custom"
+        ng-class="{disabled: !$ctrl.editGeneralSettings && !$ctrl.currentElement}"
+        ng-click="$ctrl.showModulesContainer()"
+      >
+        <i class="material-icons">settings</i>
+        {{ 'show_modules' | translate }}
+      </button>
+      <button
+        class="md-btn md-btn-custom"
+        ng-if="$ctrl.getVariable('exportHtml')"
+        ng-class="{disabled: $ctrl.hasChanges() || !$ctrl.html}"
+        ng-click="$ctrl.downloadHtml()"
+      >
+        <i class="material-icons">redo</i>
+        {{ 'export' | translate }}
+      </button>
+      <button
+        class="md-btn md-btn-custom"
+        ng-if="$ctrl.getVariable('deleteAllBlocks')"
+        ng-click="$ctrl.deleteAllElements()"
+      >
+        <i class="material-icons">delete</i>
+        {{ 'delete_all_elements' | translate }}
+      </button>
+    </div>
+    <ng-transclude></ng-transclude>
+  </div>
+  <div position-relative>
+    <div class="preview-btns">
+      <div class="md-btn-group">
+        <button
+          class="md-btn-custom md-btn"
+          ng-class="{active: !$ctrl.mobilePreview}"
+          ng-click="$ctrl.mobilePreview = false"
+        >
+          {{ 'desktop' | translate }}
+        </button>
+        <button
+          class="md-btn-custom md-btn"
+          ng-class="{ disabled: !$ctrl.html, active: !!$ctrl.mobilePreview }"
+          ng-disabled="!$ctrl.html"
+          ng-click="$ctrl.mobilePreview = true"
+        >
+          {{ 'mobile' | translate }}
+        </button>
+      </div>
+    </div>
+    <div class="builder" ng-style="$ctrl.getParentStyles()">
+      <mobile-preview
+        html="$ctrl.html"
+        ng-if="$ctrl.mobilePreview"
+      ></mobile-preview>
+      <div
+        class="email-container"
+        ng-if="!$ctrl.mobilePreview"
+        ng-style="$ctrl.getEmailWrapperStyles()"
+        ng-class="{empty: !$ctrl.Email.elements.length}"
+        data-empty-template="{{ 'drag_and_drop_elements_here' | translate }}"
+        dragula='"element-html"'
+      >
+        <div
+          class="builder-element"
+          ng-repeat="element in $ctrl.Email.elements track by element.id"
+          id="{{ element.id }}"
+        >
+          <ng-include
+            src="element.type"
+            ng-click="$ctrl.editElement(element.id)"
+          ></ng-include>
+          <div class="icons-actions">
+            <i
+              ng-if="$ctrl.Email.elements.length > 1"
+              title="{{ 'move_element' | translate }}"
+              class="actions move material-icons"
+              >drag_handle</i
+            >
+            <i
+              class="actions clone material-icons"
+              title="{{ 'clone_element' | translate }}"
+              ng-click="$ctrl.cloneElement(element.id)"
+              >content_copy</i
+            >
+            <br />
+            <i
+              class="actions delete material-icons"
+              title="{{ 'delete_element' | translate }}"
+              ng-click="$ctrl.removeElement(element.id)"
+              >delete</i
+            >
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="md-card" ng-class="{empty: $ctrl.preview}">
+    <div
+      class="md-card-content"
+      ng-if="$ctrl.currentElement || $ctrl.editGeneralSettings"
+    >
+      <div
+        ng-if="$ctrl.currentElement.type === 'title'"
+        class="email-builder-element-edit-field"
+      >
+        <ip-alignment
+          align="$ctrl.currentElement.defaults.align"
+        ></ip-alignment>
+        <div ng-repeat="key in ['title', 'subTitle']">
+          <div class="form-row text-inputs">
+            <label for="{{ key }}" class="md-label">{{
+              key | translate
+            }}</label>
+            <input
+              id="{{ key }}"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults[key]"
+            />
+          </div>
+        </div>
+        <ip-color
+          color="$ctrl.currentElement.defaults.backgroundColor"
+          label="builder_el_o_background_color"
+        ></ip-color>
+        <ip-font font="$ctrl.currentElement.defaults.font"></ip-font>
+        <ip-padding
+          label="Padding"
+          model="$ctrl.currentElement.defaults.padding"
+        ></ip-padding>
+      </div>
+
+      <div
+        ng-if="$ctrl.currentElement.type === 'text'"
+        class="email-builder-element-edit-field"
+      >
+        <ip-color
+          color="$ctrl.currentElement.defaults.backgroundColor"
+          label="builder_el_o_background_color"
+        ></ip-color>
+        <ip-font font="$ctrl.currentElement.defaults.font"></ip-font>
+        <ip-padding
+          label="Padding"
+          model="$ctrl.currentElement.defaults.padding"
+        ></ip-padding>
+      </div>
+
+      <div
+        ng-if="$ctrl.currentElement.type === 'location'"
+        class="email-builder-element-edit-field"
+      >
+        <div>
+          <div class="form-row text-inputs">
+            <label
+              for="builder_el_o_image_url"
+              translate="builder_el_o_image_url"
+            ></label>
+            <input-file-upload
+              class="upload-image-container"
+              model="$ctrl.currentElement.defaults.image"
+              element="$ctrl.currentElement.defaults"
+            ></input-file-upload>
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="form-row text-inputs">
+            <label for="altTag" class="md-label">{{
+              'address' | translate
+            }}</label>
+            <input
+              id="altTag"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.address"
+            />
+          </div>
+          <ip-color
+            color="$ctrl.currentElement.defaults.backgroundColor"
+            label="builder_el_o_background_color"
+          ></ip-color>
+        </div>
+        <ip-font font="$ctrl.currentElement.defaults.font"></ip-font>
+        <ip-padding
+          label="Padding"
+          model="$ctrl.currentElement.defaults.padding"
+        ></ip-padding>
+      </div>
+
+      <div
+        ng-if="$ctrl.currentElement.type === 'navBar'"
+        class="email-builder-element-edit-field"
+      >
+        <ip-alignment
+          align="$ctrl.currentElement.defaults.align"
+        ></ip-alignment>
+        <div>
+          <h3>{{ 'menu' | translate }}</h3>
+          <div
+            class="form-row text-inputs"
+            ng-repeat="item in $ctrl.currentElement.defaults.items"
+          >
+            <div class="social-links" style="margin-bottom: 5px;">
+              <i class="material-icons">title</i>
+              <input type="text" ng-model="item.title" />
+            </div>
+            <div class="social-links">
+              <i class="material-icons">insert_link</i>
+              <input type="url" ng-model="item.href" />
+            </div>
+            <a
+              href="#"
+              onclick="return false"
+              ng-click="$ctrl.deleteMenuItem($index)"
+            >
+              {{ 'delete' | translate }}
+            </a>
+            <hr ng-if="!$last" />
+          </div>
+          <button
+            class="md-btn md-btn-custom"
+            type="button"
+            ng-click="$ctrl.addNewMenuItem()"
+          >
+            {{ 'add_another_link' | translate }}
+          </button>
+        </div>
+
+        <ip-color
+          color="$ctrl.currentElement.defaults.backgroundColor"
+          label="builder_el_o_background_color"
+        ></ip-color>
+        <ip-border border="$ctrl.currentElement.defaults.border"></ip-border>
+        <ip-font font="$ctrl.currentElement.defaults.font"></ip-font>
+        <ip-padding
+          label="Padding"
+          model="$ctrl.currentElement.defaults.padding"
+        ></ip-padding>
+      </div>
+
+      <div
+        ng-if="['imageTextLeft', 'imageTextRight', 'image'].indexOf($ctrl.currentElement.type) > -1"
+        class="email-builder-element-edit-field"
+      >
+        <ip-alignment
+          ng-if="$ctrl.currentElement.type === 'image'"
+          align="$ctrl.currentElement.defaults.align"
+        ></ip-alignment>
+        <div class="grid two">
+          <div class="form-row text-inputs">
+            <label for="builder_el_o_width" class="md-label">{{
+              'builder_el_o_width' | translate
+            }}</label>
+            <input
+              id="builder_el_o_width"
+              type="number"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.width"
+            />
+          </div>
+          <div class="form-row text-inputs">
+            <label for="altTag" class="md-label">{{
+              'alt_tag' | translate
+            }}</label>
+            <input
+              id="altTag"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.altTag"
+            />
+          </div>
+        </div>
+        <!-- <div>
+          <div class="form-row text-inputs">
+            <label
+              for="builder_el_o_image_url"
+              translate="builder_el_o_image_url"
+            ></label>
+            <input-file-upload
+              class="upload-image-container"
+              model="$ctrl.currentElement.defaults.image"
+              element="$ctrl.currentElement.defaults"
+            ></input-file-upload>
+          </div>
+        </div> -->
+        <div>
+          <h3>{{ 'link_to' | translate }}</h3>
+          <div class="form-row text-inputs">
+            <select
+              class="md-input"
+              id="link-to"
+              ng-model="$ctrl.currentElement.defaults.linkTo['type']"
+            >
+              <option
+                ng-repeat="option in ['none', 'link', 'email']"
+                ng-value="option"
+              >
+                {{ option | translate }}
+              </option>
+            </select>
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo['type'] === 'link'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">insert_link</i>
+            <input
+              type="url"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo['link']"
+            />
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo['type'] === 'email'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">email</i>
+            <input
+              type="email"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo['link']"
+            />
+          </div>
+        </div>
+        <ip-font
+          ng-if="$ctrl.currentElement.type !== 'image'"
+          font="$ctrl.currentElement.defaults.font"
+        ></ip-font>
+        <ip-color
+          color="$ctrl.currentElement.defaults.backgroundColor"
+          label="builder_el_o_background_color"
+        ></ip-color>
+        <ip-padding
+          label="Padding"
+          model="$ctrl.currentElement.defaults.padding"
+        ></ip-padding>
+      </div>
+
+      <div
+        ng-if="$ctrl.currentElement.type === 'imageText2x2'"
+        class="email-builder-element-edit-field"
+      >
+        <div class="grid two">
+          <div class="form-row text-inputs">
+            <label for="builder_el_o_width" class="md-label">{{
+              'builder_el_o_width' | translate
+            }}</label>
+            <input
+              id="builder_el_o_width"
+              type="number"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.width1"
+            />
+          </div>
+          <div class="form-row text-inputs">
+            <label for="altTag" class="md-label">{{
+              'alt_tag' | translate
+            }}</label>
+            <input
+              id="altTag"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.altTag1"
+            />
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="form-row text-inputs">
+            <label for="builder_el_o_width" class="md-label">{{
+              'builder_el_o_width' | translate
+            }}</label>
+            <input
+              id="builder_el_o_width"
+              type="number"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.width2"
+            />
+          </div>
+          <div class="form-row text-inputs">
+            <label for="altTag" class="md-label">{{
+              'alt_tag' | translate
+            }}</label>
+            <input
+              id="altTag"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.altTag2"
+            />
+          </div>
+        </div>
+        <!-- <div>
+          <div class="form-row text-inputs">
+            <label
+              for="builder_el_o_image_url"
+              translate="builder_el_o_image_url"
+            ></label>
+            <input-file-upload
+              class="upload-image-container"
+              model="$ctrl.currentElement.defaults.image1"
+              element="$ctrl.currentElement.defaults"
+            ></input-file-upload>
+          </div>
+        </div>
+        <div>
+          <div class="form-row text-inputs">
+            <label
+              for="builder_el_o_image_url"
+              translate="builder_el_o_image_url"
+            ></label>
+            <input-file-upload
+              class="upload-image-container"
+              model="$ctrl.currentElement.defaults.image2"
+              element="$ctrl.currentElement.defaults"
+            ></input-file-upload>
+          </div>
+        </div> -->
+        <div>
+          <h3>{{ 'link_to' | translate }}</h3>
+          <div class="form-row text-inputs">
+            <select
+              class="md-input"
+              id="link-to"
+              ng-model="$ctrl.currentElement.defaults.linkTo1['type']"
+            >
+              <option
+                ng-repeat="option in ['none', 'link', 'email']"
+                ng-value="option"
+              >
+                {{ option | translate }}
+              </option>
+            </select>
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo1['type'] === 'link'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">insert_link</i>
+            <input
+              type="url"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo['link']"
+            />
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo1['type'] === 'email'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">email</i>
+            <input
+              type="email"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo['link']"
+            />
+          </div>
+        </div>
+        <div>
+          <h3>{{ 'link_to' | translate }}</h3>
+          <div class="form-row text-inputs">
+            <select
+              class="md-input"
+              id="link-to"
+              ng-model="$ctrl.currentElement.defaults.linkTo2['type']"
+            >
+              <option
+                ng-repeat="option in ['none', 'link', 'email']"
+                ng-value="option"
+              >
+                {{ option | translate }}
+              </option>
+            </select>
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo2['type'] === 'link'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">insert_link</i>
+            <input
+              type="url"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo2['link']"
+            />
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo2['type'] === 'email'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">email</i>
+            <input
+              type="email"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo2['link']"
+            />
+          </div>
+        </div>
+        <ip-font
+          ng-if="$ctrl.currentElement.type !== 'image'"
+          font="$ctrl.currentElement.defaults.font"
+        ></ip-font>
+        <ip-color
+          color="$ctrl.currentElement.defaults.backgroundColor"
+          label="builder_el_o_background_color"
+        ></ip-color>
+        <ip-padding
+          label="Padding"
+          model="$ctrl.currentElement.defaults.padding"
+        ></ip-padding>
+      </div>
+
+      <div
+        ng-if="$ctrl.currentElement.type === 'imageText3x2'"
+        class="email-builder-element-edit-field"
+      >
+        <div class="grid two">
+          <div class="form-row text-inputs">
+            <label for="builder_el_o_width" class="md-label">{{
+              'builder_el_o_width' | translate
+            }}</label>
+            <input
+              id="builder_el_o_width"
+              type="number"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.width1"
+            />
+          </div>
+          <div class="form-row text-inputs">
+            <label for="altTag" class="md-label">{{
+              'alt_tag' | translate
+            }}</label>
+            <input
+              id="altTag"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.altTag1"
+            />
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="form-row text-inputs">
+            <label for="builder_el_o_width" class="md-label">{{
+              'builder_el_o_width' | translate
+            }}</label>
+            <input
+              id="builder_el_o_width"
+              type="number"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.width2"
+            />
+          </div>
+          <div class="form-row text-inputs">
+            <label for="altTag" class="md-label">{{
+              'alt_tag' | translate
+            }}</label>
+            <input
+              id="altTag"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.altTag2"
+            />
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="form-row text-inputs">
+            <label for="builder_el_o_width" class="md-label">{{
+              'builder_el_o_width' | translate
+            }}</label>
+            <input
+              id="builder_el_o_width"
+              type="number"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.width3"
+            />
+          </div>
+          <div class="form-row text-inputs">
+            <label for="altTag" class="md-label">{{
+              'alt_tag' | translate
+            }}</label>
+            <input
+              id="altTag"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.altTag3"
+            />
+          </div>
+        </div>
+        <!-- <div>
+          <div class="form-row text-inputs">
+            <label
+              for="builder_el_o_image_url"
+              translate="builder_el_o_image_url"
+            ></label>
+            <input-file-upload
+              class="upload-image-container"
+              model="$ctrl.currentElement.defaults.image1"
+              element="$ctrl.currentElement.defaults"
+            ></input-file-upload>
+          </div>
+        </div>
+        <div>
+          <div class="form-row text-inputs">
+            <label
+              for="builder_el_o_image_url"
+              translate="builder_el_o_image_url"
+            ></label>
+            <input-file-upload
+              class="upload-image-container"
+              model="$ctrl.currentElement.defaults.image2"
+              element="$ctrl.currentElement.defaults"
+            ></input-file-upload>
+          </div>
+        </div>
+        <div>
+          <div class="form-row text-inputs">
+            <label
+              for="builder_el_o_image_url"
+              translate="builder_el_o_image_url"
+            ></label>
+            <input-file-upload
+              class="upload-image-container"
+              model="$ctrl.currentElement.defaults.image3"
+              element="$ctrl.currentElement.defaults"
+            ></input-file-upload>
+          </div>
+        </div> -->
+        <div>
+          <h3>{{ 'link_to' | translate }}</h3>
+          <div class="form-row text-inputs">
+            <select
+              class="md-input"
+              id="link-to"
+              ng-model="$ctrl.currentElement.defaults.linkTo1['type']"
+            >
+              <option
+                ng-repeat="option in ['none', 'link', 'email']"
+                ng-value="option"
+              >
+                {{ option | translate }}
+              </option>
+            </select>
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo1['type'] === 'link'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">insert_link</i>
+            <input
+              type="url"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo['link']"
+            />
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo1['type'] === 'email'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">email</i>
+            <input
+              type="email"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo['link']"
+            />
+          </div>
+        </div>
+        <div>
+          <h3>{{ 'link_to' | translate }}</h3>
+          <div class="form-row text-inputs">
+            <select
+              class="md-input"
+              id="link-to"
+              ng-model="$ctrl.currentElement.defaults.linkTo2['type']"
+            >
+              <option
+                ng-repeat="option in ['none', 'link', 'email']"
+                ng-value="option"
+              >
+                {{ option | translate }}
+              </option>
+            </select>
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo2['type'] === 'link'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">insert_link</i>
+            <input
+              type="url"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo2['link']"
+            />
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo2['type'] === 'email'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">email</i>
+            <input
+              type="email"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo2['link']"
+            />
+          </div>
+        </div>
+        <div>
+          <h3>{{ 'link_to' | translate }}</h3>
+          <div class="form-row text-inputs">
+            <select
+              class="md-input"
+              id="link-to"
+              ng-model="$ctrl.currentElement.defaults.linkTo3['type']"
+            >
+              <option
+                ng-repeat="option in ['none', 'link', 'email']"
+                ng-value="option"
+              >
+                {{ option | translate }}
+              </option>
+            </select>
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo3['type'] === 'link'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">insert_link</i>
+            <input
+              type="url"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo3['link']"
+            />
+          </div>
+          <div
+            ng-if="$ctrl.currentElement.defaults.linkTo3['type'] === 'email'"
+            class="form-row text-inputs link-to"
+          >
+            <i class="material-icons">email</i>
+            <input
+              type="email"
+              autofocus
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.linkTo3['link']"
+            />
+          </div>
+        </div>
+        <ip-font
+          ng-if="$ctrl.currentElement.type !== 'image'"
+          font="$ctrl.currentElement.defaults.font"
+        ></ip-font>
+        <ip-color
+          color="$ctrl.currentElement.defaults.backgroundColor"
+          label="builder_el_o_background_color"
+        ></ip-color>
+        <ip-padding
+          label="Padding"
+          model="$ctrl.currentElement.defaults.padding"
+        ></ip-padding>
+      </div>
+
+      <div
+        ng-if="$ctrl.currentElement.type === 'divider'"
+        class="email-builder-element-edit-field"
+      >
+        <ip-color
+          color="$ctrl.currentElement.defaults.backgroundColor"
+          label="builder_el_o_background_color"
+        ></ip-color>
+        <ip-border border="$ctrl.currentElement.defaults.border"></ip-border>
+        <ip-padding
+          label="Padding"
+          model="$ctrl.currentElement.defaults.padding"
+        ></ip-padding>
+      </div>
+
+      <div
+        ng-if="$ctrl.currentElement.type === 'social'"
+        class="email-builder-element-edit-field"
+      >
+        <ip-alignment
+          align="$ctrl.currentElement.defaults.align"
+        ></ip-alignment>
+        <div class="block-properties">
+          <h3>{{ 'social_links' | translate }}</h3>
+          <div class="form-row color-inputs">
+            <select
+              class="md-input"
+              id="network"
+              ng-change="$ctrl.addSocialNetwork($ctrl.currentElement.defaults.links, $ctrl.selectedNetwork)"
+              ng-model="$ctrl.selectedNetwork"
+            >
+              <option value="" disabled>{{
+                'select_network_from_list' | translate
+              }}</option>
+              <option
+                ng-repeat="(key, link) in $ctrl.currentElement.defaults.links"
+                ng-if="!link.active"
+                ng-value="key"
+                >{{ key | translate }}</option
+              >
+            </select>
+          </div>
+          <hr />
+          <div
+            class="form-row text-inputs"
+            ng-repeat="(key, link) in $ctrl.currentElement.defaults.links"
+            ng-if="link.active"
+          >
+            <label for="{{ key }}">{{ key | translate }}</label>
+            <div class="social-links">
+              <i class="material-icons">insert_link</i>
+              <input type="text" id="{{ key }}" ng-model="link.link" />
+            </div>
+            <a href="#" onclick="return false" ng-click="link.active = false"
+              >Delete</a
+            >
+            <hr ng-if="!$last" />
+          </div>
+        </div>
+        <ip-color
+          color="$ctrl.currentElement.defaults.backgroundColor"
+          label="builder_el_o_background_color"
+        ></ip-color>
+        <ip-padding
+          label="Padding"
+          model="$ctrl.currentElement.defaults.padding"
+        ></ip-padding>
+      </div>
+
+      <div
+        ng-if="$ctrl.currentElement.type === 'button'"
+        class="email-builder-element-edit-field"
+      >
+        <ip-alignment
+          align="$ctrl.currentElement.defaults.align"
+        ></ip-alignment>
+        <div>
+          <div class="form-row text-inputs">
+            <label for="buttonText" class="md-label">{{
+              'buttonText' | translate
+            }}</label>
+            <input
+              id="buttonText"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.buttonText"
+            />
+          </div>
+          <div class="form-row text-inputs">
+            <label for="builder_el_o_url" translate="builder_el_o_url"></label>
+            <input
+              id="builder_el_o_url"
+              type="url"
+              class="md-input"
+              ng-model="$ctrl.currentElement.defaults.url"
+            />
+          </div>
+          <div class="form-row checkbox-inputs">
+            <input
+              id="checkbox-1"
+              type="checkbox"
+              ng-model="$ctrl.currentElement.defaults.fullWidth"
+            />
+            <label
+              id="checkbox-1-custom"
+              for="checkbox-1"
+              aria-checked="false"
+              role="checkbox"
+              tabindex="0"
+            ></label>
+            <label id="yes" role="label" for="checkbox-1">{{
+              'fullWidth' | translate
+            }}</label>
+          </div>
+        </div>
+        <div class="grid two">
+          <ip-color
+            color="$ctrl.currentElement.defaults.backgroundColor"
+            label="builder_el_o_background_color"
+          ></ip-color>
+          <ip-color
+            color="$ctrl.currentElement.defaults.buttonBackgroundColor"
+            label="builder_el_o_button_bg_color"
+          ></ip-color>
+        </div>
+        <ip-font font="$ctrl.currentElement.defaults.font"></ip-font>
+        <ip-border border="$ctrl.currentElement.defaults.border"></ip-border>
+        <ip-padding
+          label="Padding"
+          model="$ctrl.currentElement.defaults.padding"
+        ></ip-padding>
+        <ip-padding
+          label="Margin"
+          model="$ctrl.currentElement.defaults.margin"
+        ></ip-padding>
+      </div>
+
+      <div
+        ng-if="$ctrl.editGeneralSettings"
+        class="email-builder-element-edit-field"
+      >
+        <div class="block-properties">
+          <div class="form-row text-inputs">
+            <label for="emailName">{{ 'email_name' | translate }}</label>
+            <input
+              type="text"
+              id="emailName"
+              class="md-input"
+              ng-model="$ctrl.Email.newEmailName"
+            />
+          </div>
+        </div>
+        <div class="grid two">
+          <div class="form-row text-inputs">
+            <label for="em-width" class="md-label">{{
+              'builder_el_o_width' | translate
+            }}</label>
+            <input
+              id="em-width"
+              type="number"
+              class="md-input"
+              min="200"
+              ng-model="$ctrl.Email.emailOptions.width"
+            />
+          </div>
+          <div class="form-row text-inputs">
+            <label for="em-width" class="md-label">{{
+              'direction' | translate
+            }}</label>
+            <select
+              class="md-input"
+              id="dir"
+              ng-model="$ctrl.Email.emailOptions.direction"
+            >
+              <option ng-repeat="option in ['ltr', 'rtl']" ng-value="option">
+                {{ option | translate }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="block-properties">
+          <div class="form-row padding-inputs">
+            <label
+              for="emailSettingsPaddingTop"
+              translate="builder_el_o_top"
+            ></label>
+            <input
+              id="emailSettingsPaddingTop"
+              class="md-input"
+              type="text"
+              ng-model="$ctrl.Email.emailOptions.paddingTop"
+            />
+
+            <label
+              for="emailSettingsPaddingTop"
+              translate="builder_el_o_right"
+            ></label>
+            <input
+              id="emailSettingsPaddingRight"
+              class="md-input"
+              type="text"
+              ng-model="$ctrl.Email.emailOptions.paddingRight"
+            />
+          </div>
+          <div class="form-row padding-inputs">
+            <label
+              for="emailSettingsPaddingBottom"
+              translate="builder_el_o_bottom"
+            ></label>
+            <input
+              id="emailSettingsPaddingBottom"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.Email.emailOptions.paddingBottom"
+            />
+
+            <label
+              for="emailSettingsPaddingBottom"
+              translate="builder_el_o_left"
+            ></label>
+            <input
+              id="emailSettingsPaddingLeft"
+              type="text"
+              class="md-input"
+              ng-model="$ctrl.Email.emailOptions.paddingLeft"
+            />
+          </div>
+        </div>
+        <ip-color
+          color="$ctrl.Email.emailOptions.backgroundColor"
+          label="builder_el_o_background_color"
+        ></ip-color>
+      </div>
+    </div>
+    <div
+      class="md-card-content"
+      ng-if="!$ctrl.currentElement && !$ctrl.editGeneralSettings"
+      dragula='"module"'
+    >
+      <div
+        class="module"
+        ng-repeat="module in $ctrl.modules"
+        data-key="{{ $index }}"
+      >
+        <img ng-src="{{ module.image }}" alt="Module image" />
+      </div>
+    </div>
+  </div>
+</div>
+<div class="upload-modal" hidden>
+  <div class="md-card">
+    <div class="md-card-content">
+      <input type="file" name="image" accept="image/*" />
+      <div class="buttons">
+        <button
+          type="button"
+          disabled
+          class="md-btn md-btn-primary disabled upload"
+        >
+          {{ 'upload' | translate }}
+        </button>
+        <button type="button" class="md-btn md-btn-warning cancel">
+          {{ 'cancel-upload' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+{
+  "name": "angular-email-builder",
+  "private": true,
+  "version": "3.0.0",
+  "description": "An Email builder based on AngularJS",
+  "license": "MIT",
+  "browserslist": "> 0.25%, not dead",
+  "devDependencies": {
+    "@babel/core": "^7.1.0",
+    "@babel/preset-env": "^7.1.0",
+    "angular-translate": "^2.18.1",
+    "babel-loader": "^8.0.2",
+    "babel-minify-webpack-plugin": "^0.3.1",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-minify": "^0.5.0",
+    "copy-webpack-plugin": "^4.5.2",
+    "css-loader": "^1.0.0",
+    "html-loader": "^0.5.5",
+    "html-webpack-plugin": "^3.2.0",
+    "less": "^3.8.1",
+    "less-loader": "^4.1.0",
+    "mini-css-extract-plugin": "^0.4.3",
+    "optimize-css-assets-webpack-plugin": "^5.0.1",
+    "prettier": "^1.14.3",
+    "rimraf": "^2.6.2",
+    "script-ext-html-webpack-plugin": "^2.0.1",
+    "style-loader": "^0.23.0",
+    "uglifyjs-webpack-plugin": "^2.0.1",
+    "webpack": "^4.19.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.8"
+  },
+  "scripts": {
+    "start": "webpack-dev-server --env.development --env.self",
+    "build": "rimraf ./dist && webpack --env.production --env.self"
+  },
+  "dependencies": {
+    "angular": "^1.7.4",
+    "angular-bootstrap-colorpicker": "^3.0.32",
+    "angular-dragula": "^1.2.8",
+    "angular-ui-tinymce": "0.0.19",
+    "lodash": "^4.17.11",
+    "ngalertify": "^1.0.2",
+    "tinymce": "^4.8.3"
+  }
+}

@@ -1,0 +1,26 @@
+<div class="column">
+  <div class="image">
+    <img
+      upload-image="image1"
+      ng-src="{{ $ctrl.options.image1 }}"
+      ng-style="$ctrl.getImageWidth('width1')"
+    />
+  </div>
+  <div
+    ui-tinymce="$ctrl.ngjs.tinymceOptions"
+    ng-model="$ctrl.options.text1"
+  ></div>
+</div>
+<div class="column">
+  <div class="image">
+    <img
+      upload-image="image2"
+      ng-src="{{ $ctrl.options.image2 }}"
+      ng-style="$ctrl.getImageWidth('width2')"
+    />
+  </div>
+  <div
+    ui-tinymce="$ctrl.ngjs.tinymceOptions"
+    ng-model="$ctrl.options.text2"
+  ></div>
+</div>
